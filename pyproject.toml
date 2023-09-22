@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "grocery-list"
+version = "0.1.0"
+description = ""
+authors = ["Natalie Menato <15682036+nmeusling@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.103.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
