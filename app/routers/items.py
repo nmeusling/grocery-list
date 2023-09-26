@@ -17,7 +17,7 @@ async def get_item(item_id: int) -> dict:
 
 @router.get("/items/search/", response_model=ItemSearchResults)
 async def search_items(
-    keyword: Optional[str] = Query(None, min_length=3, example="eggs"),
+    keyword: Optional[str] = Query(None, min_length=3, examples=["eggs"]),
     max_results: Optional[int] = 10,
 ) -> dict:
     if not keyword:
@@ -41,5 +41,5 @@ async def create_item(item_in: ItemCreate) -> dict:
         quantity=item_in.quantity,
         store=item_in.store,
     )
-    GROCERY_LIST.append(item_entry.dict())
+    GROCERY_LIST.append(item_entry.model_dump())
     return item_entry

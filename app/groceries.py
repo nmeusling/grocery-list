@@ -1,4 +1,6 @@
-GROCERY_LISTS = []
+from app.schemas.grocery_list import GroceryList
+
+GROCERY_LISTS = [GroceryList(id=1, name="Empty List", items=[])]
 GROCERY_LIST = [
     {"id": 1, "item": "Milk", "quantity": 2, "store": "Publix"},
     {"id": 2, "item": "Eggs", "quantity": 4, "store": "Publix"},
