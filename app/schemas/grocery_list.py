@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from .item import Item, ItemCreate
+from app.schemas.item import Item, ItemCreate
 
 
 class GroceryList(BaseModel):

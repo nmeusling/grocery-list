@@ -1,8 +1,8 @@
 from typing import Optional
 
 from fastapi import APIRouter, Query, HTTPException
-from ..groceries import GROCERY_LIST
-from ..schemas.item import Item, ItemSearchResults, ItemCreate
+from app.groceries import GROCERY_LIST
+from app.schemas.item import Item, ItemSearchResults, ItemCreate
 
 router = APIRouter()
 

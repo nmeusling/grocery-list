@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import lists, items
+from app.routers import lists, items
 
 app = FastAPI(title="Grocery List API")
 

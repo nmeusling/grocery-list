@@ -11,16 +11,24 @@ async def root():
     return {"message": "Hello World!"}
 
 
-@router.get("/lists/{list_name}")
-async def get_grocery_list_by_name(list_name: str):
+@router.get("/lists/")
+async def get_grocery_lists():
     """
-    Get grocery list by name
+    Get all grocery lists
+    """
+    return GROCERY_LISTS
+
+
+@router.get("/lists/{list_id}")
+async def get_grocery_list(list_id: int):
+    """
+    Get grocery list by id
     """
     for grocery_list in GROCERY_LISTS:
-        if grocery_list.name == list_name:
+        if grocery_list.id == list_id:
             return grocery_list
     raise HTTPException(
-        status_code=404, detail=f"Grocery list with name {list_name} not found"
+        status_code=404, detail=f"Grocery list with id {list_id} not found"
     )
 
 
@@ -53,5 +61,4 @@ async def add_item_to_list(list_id: int, item_in: ItemCreate) -> dict:
     item = Item(id=2, item=item_in.item, quantity=item_in.quantity, store=item_in.store)
     grocery_list = grocery_list[0]
     grocery_list.items.append(item)
-    GROCERY_LISTS.append(grocery_list)
     return grocery_list
