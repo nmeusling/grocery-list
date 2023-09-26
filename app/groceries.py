@@ -1,3 +1,4 @@
+GROCERY_LISTS = []
 GROCERY_LIST = [
     {"id": 1, "item": "Milk", "quantity": 2, "store": "Publix"},
     {"id": 2, "item": "Eggs", "quantity": 4, "store": "Publix"},

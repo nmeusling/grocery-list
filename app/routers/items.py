@@ -31,7 +31,7 @@ async def search_items(
 @router.post("/item/", status_code=201, response_model=Item)
 async def create_item(item_in: ItemCreate) -> dict:
     """
-    Create a new recipe (in memory only)
+    Create a new item (in memory only)
     """
     new_entry_id = len(GROCERY_LIST) + 1
     item_entry = Item(
