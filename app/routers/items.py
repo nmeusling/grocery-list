@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from ..groceries import GROCERY_LIST
 from ..schemas.item import Item, ItemSearchResults, ItemCreate
 
@@ -8,10 +8,11 @@ router = APIRouter()
 
 
 @router.get("/items/{item_id}", response_model=Item)
-async def read_item(item_id: int) -> dict:
+async def get_item(item_id: int) -> dict:
     result = [item for item in GROCERY_LIST if item["id"] == item_id]
     if result:
         return result[0]
+    raise HTTPException(status_code=404, detail=f"Item with ID {item_id} not found")
 
 
 @router.get("/items/search/", response_model=ItemSearchResults)
