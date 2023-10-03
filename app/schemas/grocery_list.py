@@ -1,14 +1,18 @@
-from pydantic import BaseModel
-from typing import List, Optional
-from app.schemas.item import Item, ItemCreate
+from pydantic import BaseModel, ConfigDict
+from typing import List
+from app.schemas.item import Item
 
 
-class GroceryList(BaseModel):
+class GroceryListBase(BaseModel):
+    name: str
+
+
+class GroceryListCreate(GroceryListBase):
+    pass
+
+
+class GroceryList(GroceryListBase):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     name: str
     items: List[Item]
-
-
-class GroceryListCreate(BaseModel):
-    name: str
-    items: Optional[List[ItemCreate]]

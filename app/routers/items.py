@@ -1,45 +1,27 @@
-from typing import Optional
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
 
-from fastapi import APIRouter, Query, HTTPException
-from app.groceries import GROCERY_LIST
-from app.schemas.item import Item, ItemSearchResults, ItemCreate
+from app.schemas.item import Item, ItemCreate
+from app.db import crud
+from app.db.session import get_db
+
 
 router = APIRouter()
 
 
-@router.get("/items/{item_id}", response_model=Item)
-async def get_item(item_id: int) -> dict:
-    result = [item for item in GROCERY_LIST if item["id"] == item_id]
-    if result:
-        return result[0]
-    raise HTTPException(status_code=404, detail=f"Item with ID {item_id} not found")
+@router.get("/items/{item_id}", response_model=Item, status_code=200)
+async def read_grocery_item(item_id: int, db: Session = Depends(get_db)) -> dict:
+    grocery_item = crud.get_grocery_item(db, grocery_item_id=item_id)
+    if grocery_item is None:
+        raise HTTPException(status_code=404, detail=f"Item with ID {item_id} not found")
+    return grocery_item
 
 
-@router.get("/items/search/", response_model=ItemSearchResults)
-async def search_items(
-    keyword: Optional[str] = Query(None, min_length=3, examples=["eggs"]),
-    max_results: Optional[int] = 10,
-) -> dict:
-    if not keyword:
-        return {"results": GROCERY_LIST[:max_results]}
-
-    results = list(
-        filter(lambda item: keyword.lower() in item["item"].lower(), GROCERY_LIST)
-    )
-    return {"results": results[:max_results]}
-
-
-@router.post("/item/", status_code=201, response_model=Item)
-async def create_item(item_in: ItemCreate) -> dict:
+@router.post("/items/", response_model=Item, status_code=201)
+async def create_grocery_item(
+    grocery_item_in: ItemCreate, db: Session = Depends(get_db)
+):
     """
-    Create a new item (in memory only)
+    Create a new grocery item
     """
-    new_entry_id = len(GROCERY_LIST) + 1
-    item_entry = Item(
-        id=new_entry_id,
-        item=item_in.item,
-        quantity=item_in.quantity,
-        store=item_in.store,
-    )
-    GROCERY_LIST.append(item_entry.model_dump())
-    return item_entry
+    return crud.create_grocery_item(db, grocery_item=grocery_item_in)

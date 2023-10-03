@@ -1,21 +1,21 @@
 from pydantic import BaseModel
 
-from typing import Sequence
+from typing import Sequence, Optional
 
 
-class Item(BaseModel):
-    id: int
+class ItemBase(BaseModel):
     item: str
-    quantity: int
-    store: str
+    quantity: Optional[int]
+    store: Optional[str]
+
+
+class Item(ItemBase):
+    id: int
 
 
 class ItemSearchResults(BaseModel):
     results: Sequence[Item]
 
 
-class ItemCreate(BaseModel):
-    item: str
-    quantity: int
-    store: str
-    submitter_id: int
+class ItemCreate(ItemBase):
+    pass

@@ -1,64 +1,58 @@
-from fastapi import APIRouter, HTTPException
-from app.groceries import GROCERY_LISTS
-from ..schemas.grocery_list import GroceryList, GroceryListCreate
-from ..schemas.item import Item, ItemCreate
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+
+from app.schemas.grocery_list import GroceryList, GroceryListCreate
+from app.schemas.item import ItemCreate
+from app.db import crud
+from app.db.session import get_db
 
 router = APIRouter()
 
 
-@router.get("/", status_code=200)
-async def root():
-    return {"message": "Hello World!"}
-
-
-@router.get("/lists/")
-async def get_grocery_lists():
+@router.get("/lists/", response_model=list[GroceryList])
+async def read_grocery_lists(
+    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+):
     """
     Get all grocery lists
     """
-    return GROCERY_LISTS
+    return crud.get_grocery_lists(db, skip, limit)
 
 
-@router.get("/lists/{list_id}")
-async def get_grocery_list(list_id: int):
+@router.get("/lists/{list_id}", response_model=GroceryList)
+async def read_grocery_list(list_id: int, db: Session = Depends(get_db)):
     """
     Get grocery list by id
     """
-    for grocery_list in GROCERY_LISTS:
-        if grocery_list.id == list_id:
-            return grocery_list
-    raise HTTPException(
-        status_code=404, detail=f"Grocery list with id {list_id} not found"
-    )
+    grocery_list = crud.get_grocery_list(db, grocery_list_id=list_id)
+    if grocery_list is None:
+        raise HTTPException(
+            status_code=404, detail=f"Grocery list with id {list_id} not found"
+        )
+    return grocery_list
 
 
 @router.post("/lists/", response_model=GroceryList, status_code=201)
-async def create_grocery_list(grocery_in: GroceryListCreate):
+async def create_grocery_list(
+    grocery_in: GroceryListCreate, db: Session = Depends(get_db)
+):
     """
-    Create a new grocery list, with optional items
+    Create a new grocery list
     """
-    items = []
-    for item_in in grocery_in.items:
-        item = Item(
-            id=1, item=item_in.item, quantity=item_in.quantity, store=item_in.store
-        )
-        items.append(item)
-    grocery_list = GroceryList(id=1, name=grocery_in.name, items=items)
-    GROCERY_LISTS.append(grocery_list)
-    return grocery_list
+    return crud.create_grocery_list(db, grocery_list=grocery_in)
 
 
 @router.post("/lists/{list_id}/", response_model=GroceryList, status_code=201)
-async def add_item_to_list(list_id: int, item_in: ItemCreate) -> dict:
+async def create_grocery_list_item(
+    list_id: int, item_in: ItemCreate, db: Session = Depends(get_db)
+):
     """
     Add an item to an existing grocery list
     """
-    grocery_list = [grocery for grocery in GROCERY_LISTS if grocery.id == list_id]
-    if not grocery_list:
+    db_list = crud.get_grocery_list(db, list_id)
+    if not db_list:
         raise HTTPException(
-            status_code=404, detail=f"Grocery list with ID {list_id} not found"
+            status_code=404, detail=f"Grocery list with id {list_id} not found"
         )
-    item = Item(id=2, item=item_in.item, quantity=item_in.quantity, store=item_in.store)
-    grocery_list = grocery_list[0]
-    grocery_list.items.append(item)
-    return grocery_list
+    crud.create_grocery_list_item(db, list_id, item_in)
+    return db_list
